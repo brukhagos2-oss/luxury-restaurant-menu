@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Saffron & Gold — a luxury restaurant experience with a digital QR menu, chef specials, reservations, and elegant dining." />
+    <title>Saffron & Gold | Luxury Dining</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              charcoal: '#15120f',
+              ink: '#120f0d',
+              gold: '#d4af6b',
+              goldSoft: '#f5d08c',
+              cream: '#f8f1e7',
+              wine: '#6b2f2d',
+              cinnamon: '#b66a3b',
+              olive: '#695a36'
+            },
+            boxShadow: {
+              glow: '0 0 40px rgba(212,175,107,.25)'
+            },
+            fontFamily: {
+              display: ['"Cormorant Garamond"', 'serif'],
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root { color-scheme: dark; }
+      html { scroll-behavior: smooth; }
+      body { background: #120f0d; color: #f7f5f2; }
+      .luxury-pattern {
+        background-image:
+          linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+        background-size: 46px 46px;
+      }
+      .glass {
+        background: rgba(18,15,13,0.62);
+        backdrop-filter: blur(12px);
+      }
+      .hero-image {
+        background-image: linear-gradient(to top, rgba(18,15,13,.7), rgba(18,15,13,.1)), url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80');
+        background-size: cover;
+        background-position: center;
+      }
+      .dish-card {
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+      }
+      .dish-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(212,175,107,.45);
+        box-shadow: 0 20px 40px rgba(0,0,0,.18);
+      }
+      .floating-cart {
+        transition: transform .2s ease, opacity .2s ease;
+      }
+      .modal { opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; }
+      .modal.open { opacity: 1; visibility: visible; }
+      .modal-panel { transform: translateY(16px); transition: transform .2s ease; }
+      .modal.open .modal-panel { transform: translateY(0); }
+      .tab-active {
+        background: linear-gradient(135deg, rgba(212,175,107,.15), rgba(212,175,107,.08));
+        border-color: rgba(212,175,107,.42);
+        color: #f7dca2;
+      }
+      .scrollbar-soft::-webkit-scrollbar { width: 8px; }
+      .scrollbar-soft::-webkit-scrollbar-thumb { background: rgba(212,175,107,.35); border-radius: 9999px; }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      }
+    </style>
+  </head>
+  <body class="bg-charcoal text-white antialiased">
+    <div class="absolute inset-x-0 top-0 -z-10 h-[900px] bg-gradient-to-b from-[#1a1513] via-[#170f0d] to-[#120f0d]"></div>
+
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#120f0d]/75 backdrop-blur-xl">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
+        <a href="#home" class="flex items-center gap-3" aria-label="Saffron & Gold home">
+          <div class="grid h-10 w-10 place-items-center rounded-full border border-gold/40 bg-gold/10 text-goldSoft shadow-glow">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2c1.8 4.2 3.6 6.6 6 8.2a6.5 6.5 0 1 1-12 0c2.3-1.6 4.1-4 6-8.2Z" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="leading-none">
+            <div class="font-display text-2xl font-semibold tracking-[0.08em] text-goldSoft">SAFFRON</div>
+            <div class="font-sans text-[9px] uppercase tracking-[0.38em] text-stone-300">& GOLD</div>
+          </div>
+        </a>
+
+        <div id="nav-links" class="hidden items-center gap-8 text-sm text-stone-300 md:flex">
+          <a href="#menu" class="transition hover:text-goldSoft">Menu</a>
+          <a href="#offers" class="transition hover:text-goldSoft">Special Offers</a>
+          <a href="#reservations" class="transition hover:text-goldSoft">Reservations</a>
+          <a href="#location" class="transition hover:text-goldSoft">Location</a>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button type="button" class="open-reservation rounded-full border border-gold/40 bg-gold/10 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-goldSoft transition hover:bg-gold/20 sm:px-5">
+            Table Reservation
+          </button>
+          <button id="mobile-menu-toggle" type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-stone-200 md:hidden" aria-label="Toggle menu" aria-expanded="false">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      <div id="mobile-menu" class="hidden border-t border-white/10 bg-[#120f0d] px-5 py-4 md:hidden">
+        <div class="flex flex-col gap-3 text-sm text-stone-300">
+          <a href="#menu" class="py-1 transition hover:text-goldSoft">Menu</a>
+          <a href="#offers" class="py-1 transition hover:text-goldSoft">Special Offers</a>
+          <a href="#reservations" class="py-1 transition hover:text-goldSoft">Reservations</a>
+          <a href="#location" class="py-1 transition hover:text-goldSoft">Location</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="home">
+      <section class="mx-auto max-w-7xl px-5 pb-12 pt-10 sm:px-8 lg:pb-20 lg:pt-16">
+        <div class="grid items-center gap-10 lg:grid-cols-[1.04fr_0.96fr]">
+          <div class="relative z-10">
+            <div class="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-goldSoft">
+              <span class="h-2 w-2 rounded-full bg-gold"></span>
+              Fine Dining • Signature Cuisine
+            </div>
+
+            <h1 class="mt-6 max-w-xl font-display text-[4rem] leading-[0.9] tracking-[-.06em] text-[#f7f2eb] sm:text-[5rem] lg:text-[6rem]">
+              Crafted for every unforgettable evening.
+            </h1>
+
+            <p class="mt-6 max-w-lg text-base leading-7 text-stone-300 sm:text-lg">
+              Experience an elevated blend of contemporary flavors, warm hospitality, and a refined ambience designed for intimate celebrations and memorable dinners.
+            </p>
+
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href="#menu" class="rounded-full bg-gold px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-[#1b1714] transition hover:bg-goldSoft">
+                Explore Menu
+              </a>
+              <button type="button" class="open-reservation rounded-full border border-gold/40 bg-white/5 px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-stone-100 transition hover:border-gold/60 hover:bg-gold/10">
+                Book a Table
+              </button>
+            </div>
+
+            <div class="mt-10 flex flex-wrap items-center gap-8 text-sm text-stone-300">
+              <div>
+                <div class="font-display text-3xl font-semibold text-goldSoft">4.9/5</div>
+                <div class="text-xs uppercase tracking-[0.22em] text-stone-400">Guest Rating</div>
+              </div>
+              <div>
+                <div class="font-display text-3xl font-semibold text-goldSoft">12+</div>
+                <div class="text-xs uppercase tracking-[0.22em] text-stone-400">Signature Dishes</div>
+              </div>
+              <div>
+                <div class="font-display text-3xl font-semibold text-goldSoft">7 Days</div>
+                <div class="text-xs uppercase tracking-[0.22em] text-stone-400">Open</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-image relative overflow-hidden rounded-[32px] border border-gold/25 shadow-2xl shadow-black/30">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#120f0d]/80 via-[#120f0d]/10 to-transparent"></div>
+            <div class="flex min-h-[520px] items-end p-6 sm:p-8">
+              <div class="glass rounded-2xl border border-white/10 p-4 max-w-[260px]">
+                <div class="text-[10px] font-semibold uppercase tracking-[0.22em] text-goldSoft">Chef’s Pick</div>
+                <div class="mt-2 font-display text-3xl leading-none text-[#f7f2eb]">Saffron Lamb</div>
+                <div class="mt-3 text-sm leading-6 text-stone-300">Slow-roasted lamb, saffron rice, charred vegetables, and a velvety saffron reduction.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="offers" class="border-y border-white/10 bg-white/[.02]">
+        <div class="mx-auto grid max-w-7xl gap-5 px-5 py-10 sm:px-8 lg:grid-cols-3">
+          <article class="rounded-2xl border border-gold/20 bg-[#17130f] p-5">
+            <div class="text-[10px] uppercase tracking-[0.28em] text-goldSoft">Chef’s Special</div>
+            <h3 class="mt-3 font-display text-3xl text-[#f7f2eb]">Sunset Tasting</h3>
+            <p class="mt-2 text-sm leading-6 text-stone-300">A 5-course seasonal experience with gourmet pairings.</p>
+            <div class="mt-4 font-semibold text-goldSoft">from $75</div>
+          </article>
+          <article class="rounded-2xl border border-gold/20 bg-[#17130f] p-5">
+            <div class="text-[10px] uppercase tracking-[0.28em] text-goldSoft">Limited Time</div>
+            <h3 class="mt-3 font-display text-3xl text-[#f7f2eb]">Gold Hour</h3>
+            <p class="mt-2 text-sm leading-6 text-stone-300">Enjoy complimentary dessert with every signature mains order before 7 PM.</p>
+            <div class="mt-4 font-semibold text-goldSoft">Daily • 5-7 PM</div>
+          </article>
+          <article class="rounded-2xl border border-gold/20 bg-[#17130f] p-5">
+            <div class="text-[10px] uppercase tracking-[0.28em] text-goldSoft">Private Dining</div>
+            <h3 class="mt-3 font-display text-3xl text-[#f7f2eb]">Candlelit Table</h3>
+            <p class="mt-2 text-sm leading-6 text-stone-300">Reserve a curated intimate setting for birthdays and romantic evenings.</p>
+            <div class="mt-4 font-semibold text-goldSoft">From $120</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="menu" class="mx-auto max-w-7xl px-5 py-20 sm:px-8">
+        <div class="mb-10 text-center">
+          <div class="text-[11px] font-semibold uppercase tracking-[0.3em] text-goldSoft">Digital Menu</div>
+          <h2 class="mt-4 font-display text-5xl tracking-[-.05em] text-[#f7f2eb] sm:text-6xl">Curated taste in every course.</h2>
+        </div>
+
+        <div class="mb-8 flex flex-wrap gap-3">
+          <button type="button" class="menu-filter tab-active rounded-full border border-gold/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-goldSoft" data-filter="all">All</button>
+          <button type="button" class="menu-filter rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-300" data-filter="starters">Starters</button>
+          <button type="button" class="menu-filter rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-300" data-filter="mains">Main Courses</button>
+          <button type="button" class="menu-filter rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-300" data-filter="specials">Traditional Specials</button>
+          <button type="button" class="menu-filter rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-300" data-filter="drinks">Drinks & Coffee</button>
+          <button type="button" class="menu-filter rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-300" data-filter="desserts">Desserts</button>
+        </div>
+
+        <div id="dish-grid" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"></div>
+      </section>
+
+      <section class="mx-auto max-w-7xl px-5 pb-20 sm:px-8">
+        <div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <div class="rounded-[28px] border border-gold/25 bg-[#17130f] p-6 sm:p-8">
+            <div class="text-[11px] font-semibold uppercase tracking-[0.3em] text-goldSoft">Chef’s Signature</div>
+            <h3 class="mt-4 font-display text-5xl tracking-[-.04em] text-[#f7f2eb]">Golden Ember Platter</h3>
+            <p class="mt-4 max-w-xl text-sm leading-7 text-stone-300">
+              A luxe seasonal spread of saffron rice, smoked charcoal chicken, roasted vegetables, and signature garlic yogurt, finished with citrus herbs and edible gold dust.
+            </p>
+            <div class="mt-6 flex items-center gap-4"><div class="font-display text-4xl text-goldSoft">$42</div><span class="text-xs uppercase tracking-[0.22em] text-stone-500">Serves 2</span></div>
+          </div>
+
+          <div class="rounded-[28px] border border-white/10 bg-white/[.02] p-6 sm:p-8">
+            <div class="text-[11px] font-semibold uppercase tracking-[0.3em] text-goldSoft">Guest Reviews</div>
+            <div class="mt-6 space-y-5 text-sm leading-7 text-stone-300">
+              <div class="rounded-2xl border border-white/10 bg-[#120f0d] p-4">
+                <div class="mb-2 text-goldSoft">★★★★★</div>
+                “A perfect blend of elegance and warmth. The lamb and saffron rice were exceptional.”
+                <div class="mt-3 text-xs uppercase tracking-[0.18em] text-stone-400">— Amira K.</div>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-[#120f0d] p-4">
+                <div class="mb-2 text-goldSoft">★★★★★</div>
+                “The ambiance feels luxurious and the service is incredible. Definitely worth a return visit.”
+                <div class="mt-3 text-xs uppercase tracking-[0.18em] text-stone-400">— Daniel R.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="reservations" class="border-t border-white/10 bg-[#17130f]">
+        <div class="mx-auto grid max-w-7xl gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div>
+            <div class="text-[11px] font-semibold uppercase tracking-[0.3em] text-goldSoft">Reservations</div>
+            <h3 class="mt-4 font-display text-5xl tracking-[-.05em] text-[#f7f2eb]">Reserve your table.</h3>
+            <p class="mt-4 max-w-md text-sm leading-7 text-stone-300">Whether it’s a business dinner, date night, or special celebration, we’ll make sure every detail feels unforgettable.</p>
+          </div>
+
+          <div class="rounded-[30px] border border-gold/25 bg-[#120f0d] p-6 sm:p-8">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="rounded-2xl border border-white/10 bg-white/[.03] p-4">
+                <div class="text-[10px] uppercase tracking-[0.24em] text-stone-400">Opening Hours</div>
+                <div class="mt-3 text-lg font-semibold text-goldSoft">Mon–Sun</div>
+                <div class="mt-2 text-sm text-stone-300">12:00 PM – 11:30 PM</div>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/[.03] p-4">
+                <div class="text-[10px] uppercase tracking-[0.24em] text-stone-400">Private Events</div>
+                <div class="mt-3 text-lg font-semibold text-goldSoft">Available</div>
+                <div class="mt-2 text-sm text-stone-300">For birthdays, dinners, and gatherings.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="location" class="border-t border-white/10 bg-[#120f0d]">
+      <div class="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_1fr_1fr]">
+        <div>
+          <div class="font-display text-3xl tracking-[0.09em] text-goldSoft">Saffron & Gold</div>
+          <p class="mt-4 max-w-sm text-sm leading-7 text-stone-400">
+            A refined dining experience blending modern elegance with rich, vibrant flavors from the heart of our kitchen.
+          </p>
+        </div>
+
+        <div>
+          <div class="text-[10px] font-semibold uppercase tracking-[0.24em] text-goldSoft">Opening Hours</div>
+          <ul class="mt-4 space-y-2 text-sm text-stone-300">
+            <li>Mon – Thu: 12:00 PM – 10:30 PM</li>
+            <li>Fri – Sat: 12:00 PM – 11:30 PM</li>
+            <li>Sun: 1:00 PM – 10:00 PM</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="text-[10px] font-semibold uppercase tracking-[0.24em] text-goldSoft">Location</div>
+          <div class="mt-4 overflow-hidden rounded-2xl border border-white/10">
+            <iframe
+              title="Restaurant map"
+              class="h-36 w-full border-0"
+              loading="lazy"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+              src="https://www.google.com/maps?q=Downtown+Luxury+Restaurant&output=embed">
+            </iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-white/10">
+        <div class="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-6 text-xs text-stone-400 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <div>📍 18 Goldleaf Avenue, Midtown</div>
+          <div>📞 +1 (415) 555-0147</div>
+          <div>✉️ reservations@saffrongold.com</div>
+        </div>
+      </div>
+    </footer>
+
+    <aside id="cart-panel" class="floating-cart fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-sm rounded-[26px] border border-gold/30 bg-[#17130f]/95 p-4 shadow-2xl shadow-black/30 backdrop-blur-xl sm:bottom-6 sm:right-6">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <div class="text-[10px] font-semibold uppercase tracking-[0.26em] text-goldSoft">Order</div>
+          <div class="font-display text-3xl text-[#f7f2eb]">Cart</div>
+        </div>
+        <div id="cart-count" class="grid h-9 w-9 place-items-center rounded-full bg-gold/15 text-sm font-semibold text-goldSoft">0</div>
+      </div>
+
+      <div id="cart-items" class="scrollbar-soft mt-4 max-h-52 space-y-3 overflow-y-auto pr-1 text-sm text-stone-200">
+        <div class="rounded-xl border border-dashed border-white/10 p-3 text-stone-400">Your order is empty.</div>
+      </div>
+
+      <div class="mt-4 border-t border-white/10 pt-4">
+        <div class="flex items-center justify-between text-sm text-stone-300">
+          <span>Total</span>
+          <span id="cart-total" class="font-semibold text-goldSoft">$0.00</span>
+        </div>
+        <div class="mt-4 grid gap-2 sm:grid-cols-2">
+          <button id="whatsapp-order" type="button" class="rounded-full bg-[#25d366] px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#0d1f12] transition hover:brightness-110">WhatsApp</button>
+          <button id="telegram-order" type="button" class="rounded-full bg-[#229ed9] px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:brightness-110">Telegram</button>
+        </div>
+      </div>
+    </aside>
+
+    <div id="reservation-modal" class="modal fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="reservation-title" aria-hidden="true">
+      <div class="modal-panel relative w-full max-w-lg rounded-[28px] border border-gold/25 bg-[#18130f] p-6 shadow-2xl sm:p-8">
+        <button id="close-reservation" type="button" aria-label="Close reservation modal" class="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full border border-white/10 text-stone-400 transition hover:text-white">
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+            <path d="m5 5 10 10M15 5 5 15"/>
+          </svg>
+        </button>
+
+        <div class="text-[10px] font-semibold uppercase tracking-[0.3em] text-goldSoft">Reservation</div>
+        <h3 id="reservation-title" class="mt-3 font-display text-4xl text-[#f7f2eb]">Book your evening</h3>
+
+        <form id="reservation-form" class="mt-6 space-y-4">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="guest-name" class="mb-1.5 block text-xs font-medium uppercase tracking-[0.18em] text-stone-400">Name</label>
+              <input id="guest-name" name="name" type="text" required class="w-full rounded-xl border border-white/10 bg-[#120f0d] px-3.5 py-3 text-sm text-white outline-none placeholder:text-stone-500 focus:border-gold/50" placeholder="Your name" />
+            </div>
+            <div>
+              <label for="guest-phone" class="mb-1.5 block text-xs font-medium uppercase tracking-[0.18em] text-stone-400">Phone</label>
+              <input id="guest-phone" name="phone" type="tel" required class="w-full rounded-xl border border-white/10 bg-[#120f0d] px-3.5 py-3 text-sm text-white outline-none placeholder:text-stone-500 focus:border-gold/50" placeholder="+1 (555) 000-0000" />
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="guest-date" class="mb-1.5 block text-xs font-medium uppercase tracking-[0.18em] text-stone-400">Date</label>
+              <input id="guest-date" name="date" type="date" required class="w-full rounded-xl border border-white/10 bg-[#120f0d] px-3.5 py-3 text-sm text-white outline-none focus:border-gold/50" />
+            </div>
+            <div>
+              <label for="guest-time" class="mb-1.5 block text-xs font-medium uppercase tracking-[0.18em] text-stone-400">Time</label>
+              <input id="guest-time" name="time" type="time" required class="w-full rounded-xl border border-white/10 bg-[#120f0d] px-3.5 py-3 text-sm text-white outline-none focus:border-gold/50" />
+            </div>
+          </div>
+
+          <div>
+            <label for="guest-party" class="mb-1.5 block text-xs font-medium uppercase tracking-[0.18em] text-stone-400">Party Size</label>
+            <select id="guest-party" name="party" class="w-full rounded-xl border border-white/10 bg-[#120f0d] px-3.5 py-3 text-sm text-white outline-none focus:border-gold/50">
+              <option>2 Guests</option>
+              <option>4 Guests</option>
+              <option>6 Guests</option>
+              <option>8 Guests</option>
+              <option>10+ Guests</option>
+            </select>
+          </div>
+
+          <button type="submit" class="w-full rounded-full bg-gold px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.18em] text-[#1a1714] transition hover:bg-goldSoft">
+            Confirm Reservation
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const dishes = [
+        { name: 'Citrus Burrata', category: 'starters', price: 14.5, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80', description: 'Creamy burrata with citrus, basil, and charred toast.' },
+        { name: 'Truffle Arancini', category: 'starters', price: 13.0, image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80', description: 'Crisp saffron risotto balls with black truffle and parmesan.' },
+        { name: 'Charred Octopus', category: 'starters', price: 18.5, image: 'https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=900&q=80', description: 'Tender octopus with smoked paprika, lemon, and olive oil.' },
+        { name: 'Saffron Lamb', category: 'mains', price: 32.0, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80', description: 'Slow-roasted lamb, saffron rice, and roasted vegetables.' },
+        { name: 'Seared Salmon', category: 'mains', price: 28.0, image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=900&q=80', description: 'Crisp-skinned salmon with herb butter and seasonal greens.' },
+        { name: 'Wild Mushroom Risotto', category: 'mains', price: 24.5, image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80', description: 'Creamy arborio rice with roasted mushrooms and parmesan.' },
+        { name: 'House Tagine', category: 'specials', price: 26.5, image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=900&q=80', description: 'Slow-cooked Moroccan spices, apricots, olives, and tender chicken.' },
+        { name: 'Moussaka Signature', category: 'specials', price: 27.0, image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=80', description: 'Layered aubergine, spiced lamb, and béchamel with herbs.' },
+        { name: 'Cedar-Glazed Duck', category: 'specials', price: 31.0, image: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=900&q=80', description: 'Crisp duck breast with pomegranate glaze and roasted roots.' },
+        { name: 'Golden Citrus Spritz', category: 'drinks', price: 9.5, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2c6?auto=format&fit=crop&w=900&q=80', description: 'Fresh orange, lime, and mint sparkling refresher.' },
+        { name: 'Signature Espresso', category: 'drinks', price: 6.0, image: 'https://images.unsplash.com/photo-1497636577773-f1231844b336?auto=format&fit=crop&w=900&q=80', description: 'Double-shot espresso with notes of hazelnut and cacao.' },
+        { name: 'Saffron Pistachio Tart', category: 'desserts', price: 12.0, image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=80', description: 'Silky pistachio cream in a delicate saffron pastry shell.' },
+        { name: 'Burnt Basque Cheesecake', category: 'desserts', price: 11.5, image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=900&q=80', description: 'Velvety, caramelized cheesecake with honey glaze.' },
+        { name: 'Panna Cotta', category: 'desserts', price: 10.5, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=80', description: 'Coconut panna cotta with berry compote and pistachio crumble.' },
+        { name: 'Rosemary Lemonade', category: 'drinks', price: 7.5, image: 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=900&q=80', description: 'Cold-pressed citrus, rosemary, and sparkling mineral water.' }
+      ];
+
+      const grid = document.getElementById('dish-grid');
+      const filterButtons = [...document.querySelectorAll('.menu-filter')];
+      const cartItemsRoot = document.getElementById('cart-items');
+      const cartTotal = document.getElementById('cart-total');
+      const cartCount = document.getElementById('cart-count');
+
+      let currentFilter = 'all';
+      const cart = [];
+
+      function money(value) {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+      }
+
+      function renderDishes() {
+        const filtered = currentFilter === 'all' ? dishes : dishes.filter(d => d.category === currentFilter);
+
+        grid.innerHTML = filtered.map(dish => `
+          <article class="dish-card overflow-hidden rounded-[26px] border border-white/10 bg-[#17130f]">
+            <img src="${dish.image}" alt="${dish.name}" class="h-52 w-full object-cover" />
+            <div class="p-5">
+              <div class="flex items-start justify-between gap-4">
+                <h3 class="font-display text-3xl text-[#f7f2eb]">${dish.name}</h3>
+                <span class="text-lg font-semibold text-goldSoft">${money(dish.price)}</span>
+              </div>
+              <p class="mt-3 text-sm leading-6 text-stone-300">${dish.description}</p>
+              <button type="button" class="add-to-order mt-5 w-full rounded-full border border-gold/35 bg-gold/10 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-goldSoft transition hover:bg-gold/20" data-name="${dish.name}" data-price="${dish.price}">
+                Add to Order
+              </button>
+            </div>
+          </article>
+        `).join('');
+
+        document.querySelectorAll('.add-to-order').forEach(button => {
+          button.addEventListener('click', () => {
+            const name = button.dataset.name;
+            const price = Number(button.dataset.price);
+            const existing = cart.find(item => item.name === name);
+            if (existing) {
+              existing.quantity += 1;
+            } else {
+              cart.push({ name, price, quantity: 1 });
+            }
+            renderCart();
+          });
+        });
+      }
+
+      function renderCart() {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+        cartCount.textContent = totalItems;
+        cartTotal.textContent = money(totalPrice);
+
+        if (!cart.length) {
+          cartItemsRoot.innerHTML = '<div class="rounded-xl border border-dashed border-white/10 p-3 text-stone-400">Your order is empty.</div>';
+          return;
+        }
+
+        cartItemsRoot.innerHTML = cart.map(item => `
+          <div class="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.02] p-3">
+            <div>
+              <div class="font-medium text-stone-100">${item.name}</div>
+              <div class="text-xs text-stone-400">${money(item.price)} each</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-goldSoft">x${item.quantity}</span>
+              <span class="font-semibold text-goldSoft">${money(item.price * item.quantity)}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          currentFilter = button.dataset.filter;
+          filterButtons.forEach(btn => {
+            btn.classList.toggle('tab-active', btn === button);
+            btn.classList.toggle('border-gold/35', btn === button);
+            btn.classList.toggle('text-goldSoft', btn === button);
+            btn.classList.toggle('border-white/10', btn !== button);
+            btn.classList.toggle('text-stone-300', btn !== button);
+          });
+          renderDishes();
+        });
+      });
+
+      document.getElementById('whatsapp-order').addEventListener('click', () => {
+        if (!cart.length) return;
+        const text = encodeURIComponent(`Hello Saffron & Gold! I would like to order:\n${cart.map(item => `- ${item.name} x${item.quantity}`).join('\n')}\n\nTotal: ${money(cart.reduce((sum, item) => sum + item.price * item.quantity, 0))}`);
+        window.open(`https://wa.me/14155550147?text=${text}`, '_blank');
+      });
+
+      document.getElementById('telegram-order').addEventListener('click', () => {
+        if (!cart.length) return;
+        const text = encodeURIComponent(`Hello Saffron & Gold! I would like to order:\n${cart.map(item => `- ${item.name} x${item.quantity}`).join('\n')}\n\nTotal: ${money(cart.reduce((sum, item) => sum + item.price * item.quantity, 0))}`);
+        window.open(`https://t.me/share/url?url=${encodeURIComponent('https://saffrongold.com')}&text=${text}`, '_blank');
+      });
+
+      const reservationModal = document.getElementById('reservation-modal');
+      const openReservationModal = () => {
+        reservationModal.classList.add('open');
+        reservationModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      };
+      const closeReservationModal = () => {
+        reservationModal.classList.remove('open');
+        reservationModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      };
+
+      document.querySelectorAll('.open-reservation').forEach(btn => btn.addEventListener('click', openReservationModal));
+      document.getElementById('close-reservation').addEventListener('click', closeReservationModal);
+      reservationModal.addEventListener('click', (event) => {
+        if (event.target === reservationModal) closeReservationModal();
+      });
+
+      document.getElementById('reservation-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const name = formData.get('name');
+        const phone = formData.get('phone');
+        const date = formData.get('date');
+        const time = formData.get('time');
+        const party = formData.get('party');
+
+        const subject = encodeURIComponent('Reservation Request - Saffron & Gold');
+        const body = encodeURIComponent(`Name: ${name}\nPhone: ${phone}\nDate: ${date}\nTime: ${time}\nParty Size: ${party}\n\nPlease confirm my reservation.`);
+
+        closeReservationModal();
+        window.location.href = `mailto:reservations@saffrongold.com?subject=${subject}&body=${body}`;
+      });
+
+      document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
+        const menu = document.getElementById('mobile-menu');
+        const expanded = document.getElementById('mobile-menu-toggle').getAttribute('aria-expanded') === 'true';
+        document.getElementById('mobile-menu-toggle').setAttribute('aria-expanded', String(!expanded));
+        menu.classList.toggle('hidden');
+      });
+
+      renderDishes();
+      renderCart();
+    </script>
+  </body>
+</html>
